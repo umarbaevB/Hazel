@@ -1,7 +1,8 @@
 #pragma once
-#include "hzpch.h"
+#include <functional>
 
-#include "Hazel/Core/Core.h"
+#include "Hazel/Debug/Instrumentor.h"
+#include "Hazel/Core/Base.h"
 
 namespace Hazel {
 
@@ -38,6 +39,8 @@ namespace Hazel {
 	class Event
 	{
 	public:
+		virtual ~Event() = default;
+
 		bool Handled = false;
 
 		virtual EventType GetEventType() const = 0;
@@ -45,7 +48,7 @@ namespace Hazel {
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
-		inline bool IsInCategory(EventCategory category)
+		bool IsInCategory(EventCategory category)
 		{
 			return GetCategoryFlags() & category;
 		}
@@ -65,7 +68,7 @@ namespace Hazel {
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.Handled = func(static_cast<T&>(m_Event));
+				m_Event.Handled |= func(static_cast<T&>(m_Event));
 				return true;
 			}
 			return false;
